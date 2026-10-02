@@ -45,16 +45,16 @@ func Load(envFiles ...string) (*Config, error) {
 	}
 
 	var err error
-	if cfg.RedisDB, err = getInt("REDIS_DB", 0); err != nil {
+	if cfg.RedisDB, err = getInt("REDIS_DB", 0, 0); err != nil {
 		return nil, err
 	}
-	if cfg.IPLimit, err = getInt("RATE_LIMIT_IP_MAX_REQUESTS", 10); err != nil {
+	if cfg.IPLimit, err = getInt("RATE_LIMIT_IP_MAX_REQUESTS", 10, 1); err != nil {
 		return nil, err
 	}
 	if cfg.IPBlockDuration, err = getDuration("RATE_LIMIT_IP_BLOCK_DURATION", 5*time.Minute); err != nil {
 		return nil, err
 	}
-	if cfg.TokenLimit, err = getInt("RATE_LIMIT_TOKEN_MAX_REQUESTS", 100); err != nil {
+	if cfg.TokenLimit, err = getInt("RATE_LIMIT_TOKEN_MAX_REQUESTS", 100, 1); err != nil {
 		return nil, err
 	}
 	if cfg.TokenBlockDuration, err = getDuration("RATE_LIMIT_TOKEN_BLOCK_DURATION", 5*time.Minute); err != nil {
@@ -74,7 +74,7 @@ func getString(key, fallback string) string {
 	return fallback
 }
 
-func getInt(key string, fallback int) (int, error) {
+func getInt(key string, fallback, min int) (int, error) {
 	raw := strings.TrimSpace(os.Getenv(key))
 	if raw == "" {
 		return fallback, nil
@@ -83,8 +83,8 @@ func getInt(key string, fallback int) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("%s invalido: %w", key, err)
 	}
-	if v <= 0 {
-		return 0, fmt.Errorf("%s deve ser maior que zero", key)
+	if v < min {
+		return 0, fmt.Errorf("%s deve ser maior ou igual a %d", key, min)
 	}
 	return v, nil
 }

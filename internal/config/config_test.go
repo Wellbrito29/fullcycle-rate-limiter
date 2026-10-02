@@ -24,6 +24,18 @@ func TestLoadUsaValoresPadraoQuandoNaoHaEnv(t *testing.T) {
 	}
 }
 
+func TestLoadAceitaRedisDBZero(t *testing.T) {
+	t.Setenv("REDIS_DB", "0")
+
+	cfg, err := config.Load("testdata/vazio.env")
+	if err != nil {
+		t.Fatalf("erro inesperado: %v", err)
+	}
+	if cfg.RedisDB != 0 {
+		t.Fatalf("esperava banco 0, obteve %d", cfg.RedisDB)
+	}
+}
+
 func TestLoadLeEnvEOverridesDeToken(t *testing.T) {
 	t.Setenv("SERVER_PORT", "9090")
 	t.Setenv("RATE_LIMIT_IP_MAX_REQUESTS", "5")
@@ -67,6 +79,7 @@ func TestLoadLeEnvEOverridesDeToken(t *testing.T) {
 func TestLoadRecusaConfiguracaoInvalida(t *testing.T) {
 	tests := map[string]map[string]string{
 		"limite de ip zerado":      {"RATE_LIMIT_IP_MAX_REQUESTS": "0"},
+		"banco do redis negativo":  {"REDIS_DB": "-1"},
 		"limite de ip nao numero":  {"RATE_LIMIT_IP_MAX_REQUESTS": "dez"},
 		"bloqueio invalido":        {"RATE_LIMIT_IP_BLOCK_DURATION": "cinco minutos"},
 		"token sem limite":         {"RATE_LIMIT_TOKENS": "abc123"},
