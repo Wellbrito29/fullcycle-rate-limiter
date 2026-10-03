@@ -56,7 +56,6 @@ func (s *Storage) Block(_ context.Context, key string, duration time.Duration) e
 	defer s.mu.Unlock()
 
 	s.blocks[key] = s.now().Add(duration)
-	delete(s.counters, key)
 	return nil
 }
 

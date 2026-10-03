@@ -64,10 +64,9 @@ func (s *Storage) Block(ctx context.Context, key string, duration time.Duration)
 	if duration <= 0 {
 		return nil
 	}
-	if err := s.client.Set(ctx, blockPrefix+key, "1", duration).Err(); err != nil {
-		return err
-	}
-	return s.client.Del(ctx, counterPrefix+key).Err()
+	// O contador nao e removido: ele expira junto da janela e manter o valor
+	// evita que requisicoes concorrentes reiniciem a contagem durante o bloqueio.
+	return s.client.Set(ctx, blockPrefix+key, "1", duration).Err()
 }
 
 func (s *Storage) IsBlocked(ctx context.Context, key string) (bool, error) {
