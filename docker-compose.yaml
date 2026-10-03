@@ -29,6 +29,7 @@ services:
     working_dir: /src
     volumes:
       - .:/src
+      - gomodcache:/go/pkg/mod
     environment:
       REDIS_ADDR: redis:6379
       CGO_ENABLED: "0"
@@ -38,3 +39,6 @@ services:
         condition: service_healthy
     profiles:
       - test
+
+volumes:
+  gomodcache:
